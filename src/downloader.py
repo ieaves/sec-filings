@@ -5,6 +5,7 @@ import itertools
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 import os
+import glob
 
 
 class RequestSession:
@@ -68,10 +69,31 @@ def download_masters(year, quarter, session):
             f.write(resp.text)
 
 
+def parse_master_file(file):
+    labels = ['CIK', 'CompanyName', 'FormType', 'DateFiled', 'FileName']
+
+    with open(file, 'w') as f:
+        text = f.read()
+    lines = text.split('\n')[8:]
+
+    lines = (line.split('|') for line in lines if line)
+    lines = [{k: v for k, v in zip(labels, line)} for line in lines if len(line) == 5]
+
+    for line in lines:
+        line['AccessionNumber'] = line['FileName'].split('/')[-1][0:-4]
+    return lines
+
+
+def list_master_files(directory):
+    masters_list = glob.iglob(os.path.join(directory, '**', 'master*.idx'))
+    masters_list = (parse_master_file(file) for file in masters_list)
+    masters_list = itertools.chain.from_iterable(masters_list)
+
+
 def main():
     session = RequestSession('test@gmail.com')
     quarters = [1, 2, 3, 4]
-    years = list(range(1993, 2023))
+    years = list(range(1994, 2023))
     for year, quarter in itertools.product(years, quarters):
         download_masters(year, quarter, session)
 

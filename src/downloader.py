@@ -50,10 +50,10 @@ def get_masterfile_list(base_url, session):
     return master_list
 
 
-def download_masters(year, quarter, session):
+def download_masters(year, quarter, session, root_dir):
     archiver = SECArchiver()
     base_url = archiver.daily_index_url(quarter, year)
-    output_path = os.path.join('masters', f'{year}', f'QTR{quarter}')
+    output_path = os.path.join(root_dir, 'masters', f'{year}', f'QTR{quarter}')
 
     master_files = get_masterfile_list(base_url, session)
     if master_files:
@@ -90,15 +90,15 @@ def list_master_files(directory):
     masters_list = itertools.chain.from_iterable(masters_list)
 
 
-def main():
+def main(root_dir):
     session = RequestSession('test@gmail.com')
     quarters = [1, 2, 3, 4]
     years = list(range(1994, 2023))
     for year, quarter in itertools.product(years, quarters):
-        download_masters(year, quarter, session)
+        download_masters(year, quarter, session, root_dir)
 
 
 if __name__ == "__main__":
-    main()
+    main('/data')
 
 

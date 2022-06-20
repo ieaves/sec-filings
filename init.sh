@@ -1,2 +1,2 @@
-pip3 install -r src/requirements.txt
-python3 src/main.py
+pip3 install -r requirements.txt
+python3 src/downloader.py
